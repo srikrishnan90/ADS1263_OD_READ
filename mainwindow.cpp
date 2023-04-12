@@ -23,6 +23,7 @@
 
 static float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
 static float pa1,pa2,pa3,pa4,pa5,pa6,pa7,pa8;
+static float a[8];
 
 // int speed = 10;
 
@@ -67,9 +68,9 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-   extern float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
-   unsigned int samples = 20;
-   UDOUBLE ADC[8][samples],ch[8]={0,0,0,0,0,0,0,0};
+    extern float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
+    unsigned int samples = 20;
+    UDOUBLE ADC[8][samples],ch[8]={0,0,0,0,0,0,0,0};
     for(unsigned int i=0;i<samples;i++)
     {
         for(unsigned int j=0;j<8;j++)
@@ -116,59 +117,60 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_pushButton_17_clicked()
 {
     extern float pa1,pa2,pa3,pa4,pa5,pa6,pa7,pa8;
+    extern float a[8];
     unsigned int samples = 20;
     UDOUBLE ADC[8][samples],ch[8]={0,0,0,0,0,0,0,0};
-     for(unsigned int i=0;i<samples;i++)
-     {
-         for(unsigned int j=0;j<8;j++)
-         {
-             ADC[j][i]=ADS1263_GetChannalValue(j);
-             if((ADC[j][i]>>31) == 1)
-             {
-                 ADC[j][i]=(REF*2 - ADC[j][i]/2147483648.0 * REF);
+    for(unsigned int i=0;i<samples;i++)
+    {
+        for(unsigned int j=0;j<8;j++)
+        {
+            ADC[j][i]=ADS1263_GetChannalValue(j);
+            if((ADC[j][i]>>31) == 1)
+            {
+                ADC[j][i]=(REF*2 - ADC[j][i]/2147483648.0 * REF);
 
-             }
-             else
-             {
-                 ADC[j][i]=(ADC[j][i]/2147483647.0 * REF);
+            }
+            else
+            {
+                ADC[j][i]=(ADC[j][i]/2147483647.0 * REF);
 
-             }
-         }
-     }
-     for (unsigned int i=0;i<samples;i++)
-     {
-         ch[0]+=ADC[0][i];
-         ch[1]+=ADC[1][i];
-         ch[2]+=ADC[2][i];
-         ch[3]+=ADC[3][i];
-         ch[4]+=ADC[4][i];
-         ch[5]+=ADC[5][i];
-         ch[6]+=ADC[6][i];
-         ch[7]+=ADC[7][i];
-         if(i==samples-1)
-         {
-             pa1=ch[0]/samples;
-             pa2=ch[1]/samples;
-             pa3=ch[2]/samples;
-             pa4=ch[3]/samples;
-             pa5=ch[4]/samples;
-             pa6=ch[5]/samples;
-             pa7=ch[6]/samples;
-             pa8=ch[7]/samples;
-         }
-     }
-     qDebug()<<pa1<<pa2<<pa3<<pa4<<pa5<<pa6<<pa7<<pa8;
-     pa1=log10(pb1/pa1);
-     pa2=log10(pb2/pa2);
-     pa3=log10(pb3/pa3);
-     pa4=log10(pb4/pa4);
-     pa5=log10(pb5/pa5);
-     pa6=log10(pb6/pa6);
-     pa7=log10(pb7/pa7);
-     pa8=log10(pb8/pa8);
+            }
+        }
+    }
+    for (unsigned int i=0;i<samples;i++)
+    {
+        ch[0]+=ADC[0][i];
+        ch[1]+=ADC[1][i];
+        ch[2]+=ADC[2][i];
+        ch[3]+=ADC[3][i];
+        ch[4]+=ADC[4][i];
+        ch[5]+=ADC[5][i];
+        ch[6]+=ADC[6][i];
+        ch[7]+=ADC[7][i];
+        if(i==samples-1)
+        {
+            pa1=ch[0]/samples;
+            pa2=ch[1]/samples;
+            pa3=ch[2]/samples;
+            pa4=ch[3]/samples;
+            pa5=ch[4]/samples;
+            pa6=ch[5]/samples;
+            pa7=ch[6]/samples;
+            pa8=ch[7]/samples;
+        }
+    }
+    qDebug()<<pa1<<pa2<<pa3<<pa4<<pa5<<pa6<<pa7<<pa8;
+    a[0]=pa1=log10(pb1/pa1);
+    a[1]=pa2=log10(pb2/pa2);
+    a[2]=pa3=log10(pb3/pa3);
+    a[3]=pa4=log10(pb4/pa4);
+    a[4]=pa5=log10(pb5/pa5);
+    a[5]=pa6=log10(pb6/pa6);
+    a[6]=pa7=log10(pb7/pa7);
+    a[7]=pa8=log10(pb8/pa8);
 
-     qDebug()<<QString::number(pa1, 'f', 4)<<QString::number(pa2, 'f', 4)<<QString::number(pa3, 'f', 4)<<QString::number(pa4, 'f', 4)
-               <<QString::number(pa5, 'f', 4)<<QString::number(pa6, 'f', 4)<<QString::number(pa7, 'f', 4)<<QString::number(pa8, 'f', 4);
+    qDebug()<<QString::number(pa1, 'f', 4)<<QString::number(pa2, 'f', 4)<<QString::number(pa3, 'f', 4)<<QString::number(pa4, 'f', 4)
+           <<QString::number(pa5, 'f', 4)<<QString::number(pa6, 'f', 4)<<QString::number(pa7, 'f', 4)<<QString::number(pa8, 'f', 4);
 
 }
 
@@ -252,14 +254,14 @@ void MainWindow::on_pushButton_6_clicked()
     pwmWrite (LED_PWM, 1024);
 
 
-    //   digitalWrite (LED_BASE + 0,HIGH) ;
-    digitalWrite (LED_BASE + 5,HIGH) ;
-    //digitalWrite (LED_BASE + 2,HIGH) ;
-    // digitalWrite (LED_BASE + 3,HIGH) ;
-    //  digitalWrite (LED_BASE + 4,HIGH) ;
-    //   digitalWrite (LED_BASE + 5,HIGH) ;
-    // digitalWrite (LED_BASE + 6,HIGH) ;
-    // digitalWrite (LED_BASE + 7,HIGH) ;
+    // digitalWrite (LED_BASE + 0,HIGH) ;
+    digitalWrite (LED_BASE + 4,HIGH) ;
+    //  digitalWrite (LED_BASE + 2,HIGH) ;   (set LED_BASE numbers blue-4 , red-3)
+    //    digitalWrite (LED_BASE + 3,HIGH) ;
+    //    digitalWrite (LED_BASE + 4,HIGH) ;
+    //    digitalWrite (LED_BASE + 5,HIGH) ;
+    //    digitalWrite (LED_BASE + 6,HIGH) ;
+    //    digitalWrite (LED_BASE + 7,HIGH) ;
     pwmWrite (LED_PWM, intensity);
 
 
@@ -475,24 +477,52 @@ void MainWindow::firstposi()
 
 void MainWindow::on_pushButton_11_clicked()
 {
-    digitalWrite(ensm,LOW);
-    digitalWrite(dirsm,LOW);
-    for (int i=0;i<2000;i++)
-    {
-        digitalWrite(stepssm, HIGH);
-        QThread::usleep(speed);
-        digitalWrite(stepssm, LOW);
-        QThread::usleep(speed);
-    }
-    digitalWrite(ensm,HIGH);
+    digitalWrite (LED_BASE + 0,LOW) ;
+    digitalWrite (LED_BASE + 1,LOW) ;
+    digitalWrite (LED_BASE + 2,LOW) ;
+    digitalWrite (LED_BASE + 3,LOW) ;
+    digitalWrite (LED_BASE + 4,LOW) ;
+    digitalWrite (LED_BASE + 5,LOW) ;
+    digitalWrite (LED_BASE + 6,LOW) ;
+    digitalWrite (LED_BASE + 7,LOW) ;
+    pwmWrite (LED_PWM, 1024);
+
+    on_pushButton_13_clicked();
+
+    QString X2=ui->lineEdit->text();
+    int intensity =X2.toInt();
+
+    digitalWrite (LED_BASE + 0,LOW) ;
+    digitalWrite (LED_BASE + 1,LOW) ;
+    digitalWrite (LED_BASE + 2,LOW) ;
+    digitalWrite (LED_BASE + 3,LOW) ;
+    digitalWrite (LED_BASE + 4,LOW) ;
+    digitalWrite (LED_BASE + 5,LOW) ;
+    digitalWrite (LED_BASE + 6,LOW) ;
+    digitalWrite (LED_BASE + 7,LOW) ;
+    pwmWrite (LED_PWM, 1024);
+
+
+    digitalWrite (LED_BASE + 4,HIGH) ;
+    pwmWrite (LED_PWM, intensity);
 
 }
 
 void MainWindow::on_pushButton_12_clicked()
 {
+    digitalWrite (LED_BASE + 0,LOW) ;
+    digitalWrite (LED_BASE + 1,LOW) ;
+    digitalWrite (LED_BASE + 2,LOW) ;
+    digitalWrite (LED_BASE + 3,LOW) ;
+    digitalWrite (LED_BASE + 4,LOW) ;
+    digitalWrite (LED_BASE + 5,LOW) ;
+    digitalWrite (LED_BASE + 6,LOW) ;
+    digitalWrite (LED_BASE + 7,LOW) ;
+    pwmWrite (LED_PWM, 1024);
+
     digitalWrite(ensm,LOW);
     digitalWrite(dirsm,LOW);
-    for (int i=0;i<14900;i++)
+    for (int i=0;i<19500;i++)
     {
         digitalWrite(stepssm, HIGH);
         QThread::usleep(speed);
@@ -500,6 +530,24 @@ void MainWindow::on_pushButton_12_clicked()
         QThread::usleep(speed);
     }
     digitalWrite(ensm,HIGH);
+
+    QString X2=ui->lineEdit->text();
+    int intensity =X2.toInt();
+
+    digitalWrite (LED_BASE + 0,LOW) ;
+    digitalWrite (LED_BASE + 1,LOW) ;
+    digitalWrite (LED_BASE + 2,LOW) ;
+    // digitalWrite (LED_BASE + 3,LOW) ;
+    digitalWrite (LED_BASE + 4,LOW) ;
+    digitalWrite (LED_BASE + 5,LOW) ;
+    digitalWrite (LED_BASE + 6,LOW) ;
+    digitalWrite (LED_BASE + 7,LOW) ;
+    pwmWrite (LED_PWM, 1024);
+
+
+    digitalWrite (LED_BASE + 3,HIGH) ;
+    pwmWrite (LED_PWM, intensity);
+
 }
 
 void MainWindow::on_pushButton_13_clicked()
@@ -597,3 +645,84 @@ void MainWindow::on_pushButton_16_clicked()
 }
 
 
+
+void MainWindow::on_pushButton_18_clicked()
+{
+    int intensity = ui->lineEdit_2->text().toInt();
+    digitalWrite(ensm,LOW);
+    digitalWrite(dirsm,LOW);
+    for (int i=0;i<intensity;i++)
+    {
+        digitalWrite(stepssm, HIGH);
+        QThread::usleep(speed);
+        digitalWrite(stepssm, LOW);
+        QThread::usleep(speed);
+    }
+    digitalWrite(ensm,HIGH);
+
+}
+
+void MainWindow::on_pushButton_19_clicked()
+{
+    digitalWrite(en,LOW);
+    digitalWrite(dir,HIGH);
+
+    for (int i=0;i<16000;i++)
+    {
+        digitalWrite(steps, HIGH);
+        QThread::usleep(speed);
+        digitalWrite(steps, LOW);
+        QThread::usleep(speed);
+    }
+    digitalWrite(en,HIGH);
+
+    digitalWrite (LED_BASE + 4,HIGH) ;
+    pwmWrite (LED_PWM, 0);
+    for(int i=0;i<5;i++)
+    {
+        on_pushButton_2_clicked();
+    }
+
+
+    digitalWrite(en,LOW);
+    for (int i=0;i<15300;i++)
+    {
+        digitalWrite(steps, HIGH);
+        QThread::usleep(speed);
+        digitalWrite(steps, LOW);
+        QThread::usleep(speed);
+    }
+    digitalWrite(en,HIGH);
+
+    for (int j=0;j<12;j++)
+    {
+        on_pushButton_17_clicked();
+        for(int i=0;i<8;i++)
+        {
+            QTableWidgetItem *item = ui->tableWidget->item(i, j);
+            item = new QTableWidgetItem();
+            ui->tableWidget->setItem(i, j, item);
+            item->setText(QString::number(a[i], 'f', 3));
+        }
+        digitalWrite(en,LOW);
+        for (int i=0;i<2400;i++)
+        {
+            digitalWrite(steps, HIGH);
+            QThread::usleep(speed);
+            digitalWrite(steps, LOW);
+            QThread::usleep(speed);
+        }
+        digitalWrite(en,HIGH);
+    }
+    digitalWrite (LED_BASE + 4,LOW) ;
+    pwmWrite (LED_PWM, 1024);
+    on_pushButton_4_clicked();
+
+}
+
+
+
+void MainWindow::on_pushButton_20_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+}

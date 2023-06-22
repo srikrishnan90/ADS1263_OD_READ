@@ -107,8 +107,8 @@ void DEV_Delay_ms(UDOUBLE xms)
 void DEV_GPIO_Init(void)
 {
 
-    DEV_RST_PIN     = 22;
-    DEV_CS_PIN      = 7;
+    DEV_RST_PIN     = 18;
+    DEV_CS_PIN      = 22;
     DEV_DRDY_PIN    = 17;
 
 

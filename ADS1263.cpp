@@ -242,7 +242,7 @@ Info:
 UBYTE ADS1263_init_ADC1(ADS1263_DRATE rate)
 {
     ADS1263_reset();
-    if(ADS1263_ReadChipID() == 0) {
+    if(ADS1263_ReadChipID() == 1) {
         printf("ID Read success \r\n");
     }
     else {
@@ -252,9 +252,8 @@ UBYTE ADS1263_init_ADC1(ADS1263_DRATE rate)
     ADS1263_WriteCmd(CMD_STOP1);
     ADS1263_ConfigADC1(ADS1263_GAIN_1, rate, ADS1263_DELAY_35us);
     ADS1263_WriteCmd(CMD_START1);
-    ADS1263_WriteCmd(CMD_SYOCAL1);
-    ADS1263_GetChannalValue(3);
-
+    //ADS1263_WriteCmd(CMD_SYOCAL1);
+    //ADS1263_GetChannalValue(0);
     return 0;
 }
 UBYTE ADS1263_init_ADC2(ADS1263_ADC2_DRATE rate)
@@ -395,7 +394,7 @@ static UDOUBLE ADS1263_Read_ADC1_Data(void)
     read |= ((UDOUBLE)buf[1] << 16);
     read |= ((UDOUBLE)buf[2] << 8);
     read |= (UDOUBLE)buf[3];
-    // printf("%x %x %x %x %x %x\r\n", Status, buf[0], buf[1], buf[2], buf[3], CRC);
+    //printf("%x %x %x %x %x %x\r\n", Status, buf[0], buf[1], buf[2], buf[3], CRC);
     if(ADS1263_Checksum(read, CRC) != 0)
         printf("ADC1 Data read error! \r\n");
     return read;

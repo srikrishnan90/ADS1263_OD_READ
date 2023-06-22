@@ -19,11 +19,12 @@
 #define latchPin 13
 
 #define speed 10
-#define REF 50000
+#define REF 500000
 
 static float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
 static float pa1,pa2,pa3,pa4,pa5,pa6,pa7,pa8;
-static float a[8];
+
+static float a[8],offset[8], blank[8], od[8];
 
 // int speed = 10;
 
@@ -51,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     pinMode (LED_PWM, PWM_OUTPUT);
     digitalWrite(LED_PWM,1024);
     ADS1263_SetMode(0);
-    ADS1263_init_ADC1(ADS1263_400SPS);
+    ADS1263_init_ADC1(ADS1263_1200SPS);
 }
 
 MainWindow::~MainWindow()
@@ -60,16 +61,236 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::on_pushButton_22_clicked()
+{
+    extern float offset[8];
+    unsigned int samples = 10;
+    UDOUBLE ADC[8][samples];
+    for(int i=0;i<8;i++)
+    {
+        offset[i]=0;
+    }
+    for(unsigned int i=0;i<samples;i++)
+    {
+        for(unsigned int j=0;j<8;j++)
+        {
+            ADC[j][i]=ADS1263_GetChannalValue(j);
+            if((ADC[j][i]>>31) == 1)
+            {
+                ADC[j][i]=(REF*2 - ADC[j][i]/2147483648.0 * REF);
+
+            }
+            else
+            {
+                ADC[j][i]=(ADC[j][i]/2147483647.0 * REF);
+
+            }
+        }
+    }
+    for (unsigned int i=0;i<samples;i++)
+    {
+        offset[0]+=ADC[0][i];
+        offset[1]+=ADC[1][i];
+        offset[2]+=ADC[2][i];
+        offset[3]+=ADC[3][i];
+        offset[4]+=ADC[4][i];
+        offset[5]+=ADC[5][i];
+        offset[6]+=ADC[6][i];
+        offset[7]+=ADC[7][i];
+        if(i==samples-1)
+        {
+            offset[0]=offset[0]/samples;
+            offset[1]=offset[1]/samples;
+            offset[2]=offset[2]/samples;
+            offset[3]=offset[3]/samples;
+            offset[4]=offset[4]/samples;
+            offset[5]=offset[5]/samples;
+            offset[6]=offset[6]/samples;
+            offset[7]=offset[7]/samples;
+        }
+    }
+    qDebug()<<offset[0]<<offset[1]<<offset[2]<<offset[3]<<offset[4]<<offset[5]<<offset[6]<<offset[7];
+}
+
+void MainWindow::on_pushButton_23_clicked()
+{
+    extern float blank[8];
+    unsigned int samples = 10;
+    UDOUBLE ADC[8][samples];
+    for(int i=0;i<8;i++)
+    {
+        blank[i]=0;
+    }
+    for(unsigned int i=0;i<samples;i++)
+    {
+        for(unsigned int j=0;j<8;j++)
+        {
+            ADC[j][i]=ADS1263_GetChannalValue(j);
+            if((ADC[j][i]>>31) == 1)
+            {
+                ADC[j][i]=(REF*2 - ADC[j][i]/2147483648.0 * REF);
+
+            }
+            else
+            {
+                ADC[j][i]=(ADC[j][i]/2147483647.0 * REF);
+
+            }
+        }
+    }
+    for (unsigned int i=0;i<samples;i++)
+    {
+        blank[0]+=ADC[0][i];
+        blank[1]+=ADC[1][i];
+        blank[2]+=ADC[2][i];
+        blank[3]+=ADC[3][i];
+        blank[4]+=ADC[4][i];
+        blank[5]+=ADC[5][i];
+        blank[6]+=ADC[6][i];
+        blank[7]+=ADC[7][i];
+        if(i==samples-1)
+        {
+            blank[0]=(blank[0]/samples)-offset[0];
+            blank[1]=(blank[1]/samples)-offset[1];
+            blank[2]=(blank[2]/samples)-offset[2];
+            blank[3]=(blank[3]/samples)-offset[3];
+            blank[4]=(blank[4]/samples)-offset[4];
+            blank[5]=(blank[5]/samples)-offset[5];
+            blank[6]=(blank[6]/samples)-offset[6];
+            blank[7]=(blank[7]/samples)-offset[7];
+        }
+    }
+    qDebug()<<blank[0]<<blank[1]<<blank[2]<<blank[3]<<blank[4]<<blank[5]<<blank[6]<<blank[7];
+}
+
+void MainWindow::on_pushButton_24_clicked()
+{
+    extern float od[8];
+    unsigned int samples = 10;
+    UDOUBLE ADC[8][samples];
+    for(int i=0;i<8;i++)
+    {
+        od[i]=0;
+    }
+    for(unsigned int i=0;i<samples;i++)
+    {
+        for(unsigned int j=0;j<8;j++)
+        {
+            ADC[j][i]=ADS1263_GetChannalValue(j);
+            if((ADC[j][i]>>31) == 1)
+            {
+                ADC[j][i]=(REF*2 - ADC[j][i]/2147483648.0 * REF);
+
+            }
+            else
+            {
+                ADC[j][i]=(ADC[j][i]/2147483647.0 * REF);
+
+            }
+        }
+    }
+    for (unsigned int i=0;i<samples;i++)
+    {
+        od[0]+=ADC[0][i];
+        od[1]+=ADC[1][i];
+        od[2]+=ADC[2][i];
+        od[3]+=ADC[3][i];
+        od[4]+=ADC[4][i];
+        od[5]+=ADC[5][i];
+        od[6]+=ADC[6][i];
+        od[7]+=ADC[7][i];
+        if(i==samples-1)
+        {
+            od[0]=(od[0]/samples)-offset[0];
+            od[1]=(od[1]/samples)-offset[1];
+            od[2]=(od[2]/samples)-offset[2];
+            od[3]=(od[3]/samples)-offset[3];
+            od[4]=(od[4]/samples)-offset[4];
+            od[5]=(od[5]/samples)-offset[5];
+            od[6]=(od[6]/samples)-offset[6];
+            od[7]=(od[7]/samples)-offset[7];
+        }
+    }
+    for (int i=0;i<8;i++)
+    {
+        if(od[i]<=0)
+        {
+            od[i]=1;
+        }
+    }
+    qDebug()<<od[0]<<od[1]<<od[2]<<od[3]<<od[4]<<od[5]<<od[6]<<od[7];
+    for (int i=0;i<8;i++)
+    {
+        od[i]=log10(blank[i]/od[i]);
+    }
+    qDebug()<<QString::number(od[0], 'f', 4)
+            <<QString::number(od[1], 'f', 4)
+            <<QString::number(od[2], 'f', 4)
+            <<QString::number(od[3], 'f', 4)
+            <<QString::number(od[4], 'f', 4)
+            <<QString::number(od[5], 'f', 4)
+            <<QString::number(od[6], 'f', 4)
+            <<QString::number(od[7], 'f', 4);
+}
+
+
 void MainWindow::on_pushButton_clicked()
 {
-    ADS1263_SetMode(0);
-    ADS1263_init_ADC1(ADS1263_400SPS);
+    //ADS1263_SetMode(0);
+    //ADS1263_init_ADC1(ADS1263_1200SPS);
+    extern float offset[8];
+    unsigned int samples = 10;
+    UDOUBLE ADC[8][samples];
+    for(int i=0;i<8;i++)
+    {
+        offset[i]=0;
+    }
+    for(unsigned int i=0;i<samples;i++)
+    {
+        for(unsigned int j=0;j<8;j++)
+        {
+            ADC[j][i]=ADS1263_GetChannalValue(j);
+            if((ADC[j][i]>>31) == 1)
+            {
+                ADC[j][i]=(REF*2 - ADC[j][i]/2147483648.0 * REF);
+
+            }
+            else
+            {
+                ADC[j][i]=(ADC[j][i]/2147483647.0 * REF);
+
+            }
+        }
+    }
+    for (unsigned int i=0;i<samples;i++)
+    {
+        offset[0]+=ADC[0][i];
+        offset[1]+=ADC[1][i];
+        offset[2]+=ADC[2][i];
+        offset[3]+=ADC[3][i];
+        offset[4]+=ADC[4][i];
+        offset[5]+=ADC[5][i];
+        offset[6]+=ADC[6][i];
+        offset[7]+=ADC[7][i];
+        if(i==samples-1)
+        {
+            offset[0]=offset[0]/samples;
+            offset[1]=offset[1]/samples;
+            offset[2]=offset[2]/samples;
+            offset[3]=offset[3]/samples;
+            offset[4]=offset[4]/samples;
+            offset[5]=offset[5]/samples;
+            offset[6]=offset[6]/samples;
+            offset[7]=offset[7]/samples;
+        }
+    }
+    qDebug()<<offset[0]<<offset[1]<<offset[2]<<offset[3]<<offset[4]<<offset[5]<<offset[6]<<offset[7];
 }
 
 void MainWindow::on_pushButton_2_clicked()
 {
     extern float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
-    unsigned int samples = 20;
+    unsigned int samples = 10;
     UDOUBLE ADC[8][samples],ch[8]={0,0,0,0,0,0,0,0};
     for(unsigned int i=0;i<samples;i++)
     {
@@ -118,7 +339,7 @@ void MainWindow::on_pushButton_17_clicked()
 {
     extern float pa1,pa2,pa3,pa4,pa5,pa6,pa7,pa8;
     extern float a[8];
-    unsigned int samples = 20;
+    unsigned int samples = 10;
     UDOUBLE ADC[8][samples],ch[8]={0,0,0,0,0,0,0,0};
     for(unsigned int i=0;i<samples;i++)
     {
@@ -177,9 +398,9 @@ void MainWindow::on_pushButton_17_clicked()
 void MainWindow::on_pushButton_3_clicked()
 {
     UWORD i;
-#define ChannelNumber 8
+#define ChannelNumber 1
 #define REF         5.08
-    UBYTE ChannelList[ChannelNumber] = {0, 1, 2, 3, 4, 5, 6, 7};    // The channel must be less than 10
+    UBYTE ChannelList[ChannelNumber] = {0};    // The channel must be less than 10
 
     UDOUBLE Value[ChannelNumber] = {0};
     while(1)
@@ -188,7 +409,7 @@ void MainWindow::on_pushButton_3_clicked()
         for(i=0; i<8; i++)
         {
             if((Value[i]>>31) == 1){
-                // qDebug()<<"IN" << i <<(REF*2 - Value[i]/2147483648.0 * REF);      //7fffffff + 1
+                qDebug()<<"IN" << i <<(REF*2 - Value[i]/2147483648.0 * REF);      //7fffffff + 1
 
             }
             else
@@ -726,3 +947,12 @@ void MainWindow::on_pushButton_20_clicked()
 {
     ui->stackedWidget->setCurrentIndex(1);
 }
+
+void MainWindow::on_pushButton_21_clicked()
+{
+    UDOUBLE ADC, ADC1;
+    ADC=ADS1263_GetChannalValue(0);
+    ADC1=ADS1263_GetChannalValue(4);
+    qDebug()<<ADC<<ADC1;
+}
+

@@ -333,6 +333,19 @@
        <string>Read OD</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="pushButton_25">
+      <property name="geometry">
+       <rect>
+        <x>500</x>
+        <y>270</y>
+        <width>80</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Test new</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="page_3">
      <widget class="QTableWidget" name="tableWidget">

@@ -65,15 +65,21 @@ void MainWindow::on_pushButton_22_clicked()
 {
     extern float offset[8];
     unsigned int samples = 10;
+    UDOUBLE buff;
     UDOUBLE ADC[8][samples];
     for(int i=0;i<8;i++)
     {
         offset[i]=0;
     }
-    for(unsigned int i=0;i<samples;i++)
+    for(unsigned int j=0;j<8;j++)
     {
-        for(unsigned int j=0;j<8;j++)
+        for(unsigned int i=0;i<samples;i++)
         {
+            if(i==0)
+            {
+                for(int buf=0;buf<20;buf++)
+                    buff=ADS1263_GetChannalValue(j);
+            }
             ADC[j][i]=ADS1263_GetChannalValue(j);
             if((ADC[j][i]>>31) == 1)
             {
@@ -99,14 +105,14 @@ void MainWindow::on_pushButton_22_clicked()
         offset[7]+=ADC[7][i];
         if(i==samples-1)
         {
-            offset[0]=offset[0]/samples;
-            offset[1]=offset[1]/samples;
-            offset[2]=offset[2]/samples;
-            offset[3]=offset[3]/samples;
-            offset[4]=offset[4]/samples;
-            offset[5]=offset[5]/samples;
-            offset[6]=offset[6]/samples;
-            offset[7]=offset[7]/samples;
+            offset[0]=offset[0]/(samples);
+            offset[1]=offset[1]/(samples);
+            offset[2]=offset[2]/(samples);
+            offset[3]=offset[3]/(samples);
+            offset[4]=offset[4]/(samples);
+            offset[5]=offset[5]/(samples);
+            offset[6]=offset[6]/(samples);
+            offset[7]=offset[7]/(samples);
         }
     }
     qDebug()<<offset[0]<<offset[1]<<offset[2]<<offset[3]<<offset[4]<<offset[5]<<offset[6]<<offset[7];
@@ -956,3 +962,17 @@ void MainWindow::on_pushButton_21_clicked()
     qDebug()<<ADC<<ADC1;
 }
 
+
+void MainWindow::on_pushButton_25_clicked()
+{
+     UDOUBLE ADC[4];
+    ADC[0]=ADS1263_GetChannalValue(0);
+    ADC[1]=ADS1263_GetChannalValue(1);
+    ADC[1]=ADS1263_GetChannalValue(1);
+    ADC[2]=ADS1263_GetChannalValue(2);
+    ADC[3]=ADS1263_GetChannalValue(3);
+
+
+    qDebug()<<ADC[0]<<ADC[1]<<ADC[2]<<ADC[3];
+
+}

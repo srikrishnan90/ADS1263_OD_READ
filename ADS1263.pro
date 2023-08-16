@@ -28,12 +28,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     ADS1263.cpp \
-    DEV_Config.cpp
+    DEV_Config.cpp \
+    pi2c.cpp
 
 HEADERS += \
         mainwindow.h \
     ADS1263.h \
-    DEV_Config.h
+    DEV_Config.h \
+    pi2c.h
 
 FORMS += \
         mainwindow.ui

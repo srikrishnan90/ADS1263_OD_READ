@@ -12,6 +12,7 @@
 #include <Iir.h>
 #include <sr595.h>
 #include <math.h>
+#include <pi2c.h>
 
 
 namespace Ui {
@@ -84,6 +85,20 @@ private slots:
     void on_pushButton_24_clicked();
 
     void on_pushButton_25_clicked();
+
+    void led_intensity_status(int wavelength);
+
+    void write_led(int val[]);
+
+    void on_pushButton_26_clicked();
+
+    void on_pushButton_31_clicked();
+
+    void on_pushButton_27_clicked();
+
+    void on_pushButton_28_clicked();
+
+    void on_pushButton_29_clicked();
 
 private:
     Ui::MainWindow *ui;

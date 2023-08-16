@@ -25,8 +25,12 @@ static float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
 static float pa1,pa2,pa3,pa4,pa5,pa6,pa7,pa8;
 
 static float a[8],offset[8], blank[8], od[8];
+static int led_stat[8], pwm_405[8], pwm_450[8], pwm_490[8], pwm_630[8];
 
 // int speed = 10;
+int led_freq=10000;
+
+ Pi2c arduino(7);
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -47,12 +51,12 @@ MainWindow::MainWindow(QWidget *parent) :
     pinMode (stepssm, OUTPUT) ;
     pinMode (hm_sensm, INPUT) ;
     digitalWrite(ensm,HIGH);
-
     sr595Setup (LED_BASE, 8, dataPin, clockPin, latchPin) ;
     pinMode (LED_PWM, PWM_OUTPUT);
     digitalWrite(LED_PWM,1024);
     ADS1263_SetMode(0);
-    ADS1263_init_ADC1(ADS1263_1200SPS);
+    ADS1263_init_ADC1(ADS1263_100SPS);
+
 }
 
 MainWindow::~MainWindow()
@@ -64,7 +68,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_22_clicked()
 {
     extern float offset[8];
-    unsigned int samples = 10;
+    unsigned int samples = 4;//should be in even number
     UDOUBLE buff;
     UDOUBLE ADC[8][samples];
     for(int i=0;i<8;i++)
@@ -77,7 +81,7 @@ void MainWindow::on_pushButton_22_clicked()
         {
             if(i==0)
             {
-                for(int buf=0;buf<20;buf++)
+                for(int buf=0;buf<4;buf++)
                     buff=ADS1263_GetChannalValue(j);
             }
             ADC[j][i]=ADS1263_GetChannalValue(j);
@@ -121,16 +125,22 @@ void MainWindow::on_pushButton_22_clicked()
 void MainWindow::on_pushButton_23_clicked()
 {
     extern float blank[8];
-    unsigned int samples = 10;
+    unsigned int samples = 4;
     UDOUBLE ADC[8][samples];
+    UDOUBLE buff;
     for(int i=0;i<8;i++)
     {
         blank[i]=0;
     }
-    for(unsigned int i=0;i<samples;i++)
+    for(unsigned int j=0;j<8;j++)
     {
-        for(unsigned int j=0;j<8;j++)
+        for(unsigned int i=0;i<samples;i++)
         {
+            if(i==0)
+            {
+                for(int buf=0;buf<4;buf++)
+                    buff=ADS1263_GetChannalValue(j);
+            }
             ADC[j][i]=ADS1263_GetChannalValue(j);
             if((ADC[j][i]>>31) == 1)
             {
@@ -172,16 +182,22 @@ void MainWindow::on_pushButton_23_clicked()
 void MainWindow::on_pushButton_24_clicked()
 {
     extern float od[8];
-    unsigned int samples = 10;
+    unsigned int samples = 4;
     UDOUBLE ADC[8][samples];
+    UDOUBLE buff;
     for(int i=0;i<8;i++)
     {
         od[i]=0;
     }
-    for(unsigned int i=0;i<samples;i++)
+    for(unsigned int j=0;j<8;j++)
     {
-        for(unsigned int j=0;j<8;j++)
+        for(unsigned int i=0;i<samples;i++)
         {
+            if(i==0)
+            {
+                for(int buf=0;buf<4;buf++)
+                    buff=ADS1263_GetChannalValue(j);
+            }
             ADC[j][i]=ADS1263_GetChannalValue(j);
             if((ADC[j][i]>>31) == 1)
             {
@@ -247,14 +263,20 @@ void MainWindow::on_pushButton_clicked()
     extern float offset[8];
     unsigned int samples = 10;
     UDOUBLE ADC[8][samples];
+    UDOUBLE buff;
     for(int i=0;i<8;i++)
     {
         offset[i]=0;
     }
-    for(unsigned int i=0;i<samples;i++)
+    for(unsigned int j=0;j<8;j++)
     {
-        for(unsigned int j=0;j<8;j++)
+        for(unsigned int i=0;i<samples;i++)
         {
+            if(i==0)
+            {
+                for(int buf=0;buf<20;buf++)
+                    buff=ADS1263_GetChannalValue(j);
+            }
             ADC[j][i]=ADS1263_GetChannalValue(j);
             if((ADC[j][i]>>31) == 1)
             {
@@ -298,10 +320,16 @@ void MainWindow::on_pushButton_2_clicked()
     extern float pb1,pb2,pb3,pb4,pb5,pb6,pb7,pb8;
     unsigned int samples = 10;
     UDOUBLE ADC[8][samples],ch[8]={0,0,0,0,0,0,0,0};
-    for(unsigned int i=0;i<samples;i++)
+    UDOUBLE buff;
+    for(unsigned int j=0;j<8;j++)
     {
-        for(unsigned int j=0;j<8;j++)
+        for(unsigned int i=0;i<samples;i++)
         {
+            if(i==0)
+            {
+                for(int buf=0;buf<20;buf++)
+                    buff=ADS1263_GetChannalValue(j);
+            }
             ADC[j][i]=ADS1263_GetChannalValue(j);
             if((ADC[j][i]>>31) == 1)
             {
@@ -965,14 +993,187 @@ void MainWindow::on_pushButton_21_clicked()
 
 void MainWindow::on_pushButton_25_clicked()
 {
-     UDOUBLE ADC[4];
+    int pwm[8]={500,500,500,500,500,500,500,500};//take pwm from database
+
+
+    int stat=0;
+    //led_intensity_status(0);
+    //qDebug()<<led_stat[0]<<led_stat[1]<<led_stat[2]<<led_stat[3]<<led_stat[4]<<led_stat[5]<<led_stat[6]<<led_stat[7];
+    for(int j=0;j<1000;j++)
+    {
+        write_led(pwm);
+        led_intensity_status(0);
+        qDebug()<<led_stat[0]<<led_stat[1]<<led_stat[2]<<led_stat[3]<<led_stat[4]<<led_stat[5]<<led_stat[6]<<led_stat[7];
+        stat=0;
+        for(int i=0;i<8;i++)
+        {
+            if(led_stat[i]<70 || led_stat[i]>95)
+                stat=1;
+        }
+        if(stat==0)
+        {
+            //write pwm to database
+            //send led off command
+            break;
+        }
+        else
+        {
+            for(int i=0;i<8;i++)
+            {
+                if(led_stat[i]<70)
+                    pwm_405[i]=pwm[i]=pwm[i]+1;
+                else if(led_stat[i]>95)
+                    pwm_405[i]=pwm[i]=pwm[i]-1;
+            }
+            qDebug()<<pwm[0]<<pwm[1]<<pwm[2]<<pwm[3]<<pwm[4]<<pwm[5]<<pwm[6]<<pwm[7];
+        }
+    }
+}
+
+void MainWindow::led_intensity_status(int wavelength)
+{
+    UDOUBLE ADC[8];
     ADC[0]=ADS1263_GetChannalValue(0);
-    ADC[1]=ADS1263_GetChannalValue(1);
     ADC[1]=ADS1263_GetChannalValue(1);
     ADC[2]=ADS1263_GetChannalValue(2);
     ADC[3]=ADS1263_GetChannalValue(3);
+    ADC[4]=ADS1263_GetChannalValue(4);
+    ADC[5]=ADS1263_GetChannalValue(5);
+    ADC[6]=ADS1263_GetChannalValue(6);
+    ADC[7]=ADS1263_GetChannalValue(7);
+    for(int i=0;i<8;i++)
+    {
+        led_stat[i]=ADC[i]/21474836;
+        //led_stat[i]=80; //for testing
 
+    }
+    //qDebug()<<ADC[0]<<ADC[1]<<ADC[2]<<ADC[3]<<ADC[4]<<ADC[5]<<ADC[6]<<ADC[7];
+}
 
-    qDebug()<<ADC[0]<<ADC[1]<<ADC[2]<<ADC[3];
+void MainWindow::write_led(int val[8])
+{
+    //int pwm[8]={500,500,500,500,500,500,500,500};
+    QString My_String;
+    for(int i=0; i<8; i++)
+    {
+        My_String.append(QString::number(val[i]));
+        if(i==7)
+            My_String.append('\0');
+        else
+            My_String.append(" ");
+    }
+    qDebug()<<My_String;
+    int len=My_String.length();
+    char* ch;
+    QByteArray ba=My_String.toLatin1();
+    ch=ba.data();
+    //QThread::msleep(500);
+    arduino.i2cWrite(ch,len);
+}
 
+void MainWindow::on_pushButton_26_clicked()
+{
+
+    int pwm[10]={500,500,500,500,500,500,500,500,1,led_freq};
+    pwm[9]=ui->lineEdit_3->text().toInt();
+    QString My_String;
+    for(int i=0; i<10; i++)
+    {
+        My_String.append(QString::number(pwm[i]));
+        if(i==9)
+            My_String.append('\0');
+        else
+            My_String.append(" ");
+    }
+    qDebug()<<My_String;
+    int len=My_String.length();
+    char* ch;
+    QByteArray ba=My_String.toLatin1();
+    ch=ba.data();
+    arduino.i2cWrite(ch,len);
+
+}
+
+void MainWindow::on_pushButton_31_clicked()
+{
+    int pwm[10]={500,500,500,500,500,500,500,500,0,led_freq};
+    pwm[9]=ui->lineEdit_3->text().toInt();
+    QString My_String;
+    for(int i=0; i<10; i++)
+    {
+        My_String.append(QString::number(pwm[i]));
+        if(i==9)
+            My_String.append('\0');
+        else
+            My_String.append(" ");
+    }
+    qDebug()<<My_String;
+    int len=My_String.length();
+    char* ch;
+    QByteArray ba=My_String.toLatin1();
+    ch=ba.data();
+    arduino.i2cWrite(ch,len);
+}
+
+void MainWindow::on_pushButton_27_clicked()
+{
+    int pwm[10]={500,500,500,500,500,500,500,500,2,led_freq};
+    pwm[9]=ui->lineEdit_3->text().toInt();
+    QString My_String;
+    for(int i=0; i<10; i++)
+    {
+        My_String.append(QString::number(pwm[i]));
+        if(i==9)
+            My_String.append('\0');
+        else
+            My_String.append(" ");
+    }
+    qDebug()<<My_String;
+    int len=My_String.length();
+    char* ch;
+    QByteArray ba=My_String.toLatin1();
+    ch=ba.data();
+    arduino.i2cWrite(ch,len);
+}
+
+void MainWindow::on_pushButton_28_clicked()
+{
+    int pwm[10]={500,500,500,500,500,500,500,500,3,led_freq};
+    pwm[9]=ui->lineEdit_3->text().toInt();
+    QString My_String;
+    for(int i=0; i<10; i++)
+    {
+        My_String.append(QString::number(pwm[i]));
+        if(i==9)
+            My_String.append('\0');
+        else
+            My_String.append(" ");
+    }
+    qDebug()<<My_String;
+    int len=My_String.length();
+    char* ch;
+    QByteArray ba=My_String.toLatin1();
+    ch=ba.data();
+    arduino.i2cWrite(ch,len);
+}
+
+void MainWindow::on_pushButton_29_clicked()
+{
+    int pwm[10]={500,500,500,500,500,500,500,500,4,led_freq};
+    pwm[9]=ui->lineEdit_3->text().toInt();
+    QString My_String;
+    for(int i=0; i<10; i++)
+    {
+        My_String.append(QString::number(pwm[i]));
+        if(i==9)
+            My_String.append('\0');
+        else
+            My_String.append(" ");
+    }
+    qDebug()<<My_String;
+    int len=My_String.length();
+    char* ch;
+    QByteArray ba=My_String.toLatin1();
+    ch=ba.data();
+    arduino.i2cWrite(ch,len);
 }
